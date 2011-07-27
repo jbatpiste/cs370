@@ -2,6 +2,12 @@
 
 server=${1-localhost:8085}
 
+function cleanup {
+	kill $server_pid
+	rm gradle.properties
+}
+
+term "cleanup" INT TERM EXIT
 
 function unknown_files {
 	unknown_file_count=`git status --porcelain | grep "^??" | wc -l`
@@ -29,7 +35,6 @@ if [ "$?" -gt 0 ] ; then
 fi
 
 gradle gaeRun &
-
 server_pid=$!
 if [ "$server_pid" -gt 0 ] ; then
 	echo "Server failed to start"
@@ -59,6 +64,7 @@ if [ "$?" -eq 0 ]; then
 else
 	echo "Response is NOT valid JSON"
 	echo $history
+	kill $server_pid
 	exit 1	
 fi
 
