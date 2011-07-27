@@ -24,31 +24,27 @@ if uncommited_changes_; then
 fi 
 
 gradle clean build 
-
-if [ ! "$?" -gt 0 ] ; then
+if [ "$?" -gt 0 ] ; then
 	exit 1
 fi
 
 gradle gaeRun &
 
 server_pid=$!
-if [ ! "$server_pid" -gt 0 ] ; then
+if [ "$server_pid" -gt 0 ] ; then
 	echo "Server failed to start"
 	exit 1
 fi
 
 echo -n "Waiting for local server to start..."
-while [ ! server_status -gt 0 ] ; do
+server_status=1
+while [ ! "$server_status" -gt 0 ] ; do
 	echo -n .
 	echo http://$server/checkclearing
 	server_status=$?
 	sleep 1
 done
 
-kill $server_pid
-
-echo 'exit...'
-exit 0
 
 curl -s -H 'Content-Type:application/json' -d '["one"]' http://$server/checkclearing
 
@@ -56,6 +52,36 @@ history=`curl http://$server/checkclearing`
 
 echo 'history data:'
 echo $history
+
+echo $history | python -mjson.tool > /dev/null
+if [ "$?" -eq 0 ]; then
+	echo "Response is valid JSON"
+else
+	echo "Response is NOT valid JSON"
+	echo $history
+	exit 1	
+fi
+
+kill $server_pid
+
+echo "Build successful! Enter AppEnigner password to deploy"
+stty -echo
+read -p "Password: " password
+echo
+stty echo
+echo "gaePassword=$password" > gradle.properties
+#! gradle gaeUpload
+rm gradle.properties
+
+
+timestamp=`date "+%Y-%m-%d %H:%M:%S"`
+git tag DEPLOY_$timestamp
+echo $timestamp
+
+
+echo 'exit...'
+exit 0
+
 
 response=`curl -H 'Content-Type:application/json' -d "$history" http://$server/checkclearing`
 
