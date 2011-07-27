@@ -25,7 +25,7 @@ fi
 
 gradle clean build 
 
-if [ ! "$?" -gt 0]; then
+if [ ! "$?" -gt 0 ] ; then
 	exit 1
 fi
 
