@@ -23,6 +23,8 @@ if uncommited_changes_; then
 	exit 1
 fi 
 
+gradle clean build 
+
 
 echo 'exit...'
 exit 0
