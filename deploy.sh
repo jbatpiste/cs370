@@ -29,13 +29,23 @@ if [ ! "$?" -gt 0 ] ; then
 	exit 1
 fi
 
-gradle gaeRun &> /dev/null &
+gradle gaeRun &
 
 server_pid=$!
 if [ ! "$?" -gt 0 ] ; then
 	echo "Server failed to start"
 	exit 1
 fi
+
+echo -n "Waiting for local server to start..."
+while [ ! server_status -gt 0 ] ; do
+	echo -n .
+	echo http://$server/checkclearing
+	server_status=$?
+	sleep 1
+done
+
+kill $server_pid
 
 echo 'exit...'
 exit 0
