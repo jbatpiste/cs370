@@ -7,7 +7,7 @@ function cleanup {
 	rm gradle.properties
 }
 
-term "cleanup" INT TERM EXIT
+trape "cleanup" INT TERM EXIT
 
 function unknown_files {
 	unknown_file_count=`git status --porcelain | grep "^??" | wc -l`
