@@ -45,7 +45,7 @@ echo -n "Waiting for local server to start..."
 server_status=1
 while [ ! "$server_status" -gt 0 ] ; do
 	echo -n .
-	echo http://$server/checkclearing
+	echo http://$server
 	server_status=$?
 	sleep 1
 done
